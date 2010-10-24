@@ -1,13 +1,18 @@
 require 'pathname'
 
 class Polyamory
-  def self.run(names, root)
-    new(names, root).run
+  def self.run(*args)
+    new(*args).run
   end
   
-  def initialize(names, root)
+  def initialize(names, root, options = {})
     @names = names
     @root = ::Pathname.new(root).expand_path
+    @options = options
+  end
+  
+  def noop?
+    @options[:noop]
   end
   
   def file_exists?(path)
@@ -161,15 +166,16 @@ class Polyamory
   
   def cmd(args, many = false)
     args = prepare_cmdline(args)
+    puts args.join(' ')
+
     # TODO: hack; make this configurable, use bundler
     with_rubyopt(args.first == 'polyamory' ? '-rubygems' : nil) do
-      puts args.join(' ')
       if many
         system(*args)
       else
         exec(*args)
       end
-    end
+    end unless noop?
   end
   
   def with_rubyopt(value)
