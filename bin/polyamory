@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+if ARGV.delete '-t'
+  test_files = ARGV.map { |arg|
+    unless arg.index('-') == 0
+      if File.directory? arg
+        Dir["#{arg}/**/*_test.rb"]
+      else
+        arg
+      end
+    end
+  }.flatten
+  
+  test_files.each { |f| load f }
+else
+  require 'polyamory'
+  Polyamory.run ARGV, Dir.pwd
+end
