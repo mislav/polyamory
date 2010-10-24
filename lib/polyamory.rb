@@ -112,10 +112,28 @@ class Polyamory
   def runner_for_prefix(prefix)
     case prefix
     when 'features' then %w[cucumber -f progress -t ~@wip]
-    when 'spec' then 'rspec'
+    when 'spec' then detect_rspec_version
     when 'test' then %w[polyamory -t]
     else
       raise ArgumentError, "don't know a runner for #{prefix}"
+    end
+  end
+  
+  def detect_rspec_version
+    if file_exists? 'spec/spec.opts' or
+        file_exists? 'lib/tasks/rspec.rake'
+      'spec'
+    elsif file_exists? '.rspec'
+      'rspec'
+    elsif helper = 'spec/spec_helper.rb' and helper.exist?
+      File.open(helper) do |file|
+        while file.gets
+          return $&.downcase if $_ =~ /\bR?Spec\b/
+        end
+      end
+      'rspec'
+    else
+      'rspec'
     end
   end
   
