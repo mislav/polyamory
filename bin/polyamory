@@ -8,9 +8,14 @@ if ARGV.delete '-t'
         arg
       end
     end
-  }.flatten
+  }.compact.flatten
   
-  test_files.each { |f| load f }
+  if test_files.empty?
+    warn "polyamory: nothing to load"
+    exit 1
+  else
+    test_files.each { |f| load f }
+  end
 else
   require 'polyamory'
   Polyamory.run ARGV, Dir.pwd
