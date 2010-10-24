@@ -7,7 +7,7 @@ class Polyamory
   
   def initialize(names, root, options = {})
     @names = names
-    @root = ::Pathname.new(root).expand_path
+    @root = Pathname.new(root).expand_path
     @options = options
   end
   
@@ -73,6 +73,12 @@ class Polyamory
     
     def =~(pattern)
       relative.to_s =~ pattern
+    end
+    
+    def +(other)
+      result = self.class.new(plus(@path, other.to_s))
+      result.root ||= self
+      result
     end
   end
   
