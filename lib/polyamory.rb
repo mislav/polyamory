@@ -178,6 +178,7 @@ class Polyamory
     with_rubyopt(args.first == 'polyamory' ? '-rubygems' : nil) do
       if many
         system(*args)
+        exit $?.exitstatus unless $?.success?
       else
         exec(*args)
       end
