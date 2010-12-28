@@ -131,12 +131,13 @@ class Polyamory
   end
   
   def detect_rspec_version
-    if file_exists? 'spec/spec.opts' or
-        file_exists? 'lib/tasks/rspec.rake'
+    helper = 'spec/spec_helper.rb'
+    
+    if file_exists? 'spec/spec.opts' or file_exists? 'lib/tasks/rspec.rake'
       'spec'
     elsif file_exists? '.rspec'
       'rspec'
-    elsif helper = 'spec/spec_helper.rb' and helper.exist?
+    elsif helper.exist?
       File.open(helper) do |file|
         while file.gets
           return $&.downcase if $_ =~ /\bR?Spec\b/
