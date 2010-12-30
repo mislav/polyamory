@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |gem|
   gem.name    = 'polyamory'
-  gem.version = '0.0.1'
+  gem.version = '0.0.2'
   gem.date    = Time.now.strftime('%Y-%m-%d')
 
   # gem.add_dependency 'hpricot', '~> 0.8.2'
@@ -20,5 +20,6 @@ Gem::Specification.new do |gem|
   # gem.rdoc_options = ['--main', 'README.rdoc', '--charset=UTF-8']
   # gem.extra_rdoc_files = ['README.rdoc', 'LICENSE', 'CHANGELOG.rdoc']
 
+  gem.executables = %w( polyamory )
   gem.files = Dir['Rakefile', '{bin,lib,man,test,spec}/**/*', 'README*', 'LICENSE*'] & `git ls-files -z`.split("\0")
 end
