@@ -137,7 +137,7 @@ class Polyamory
       'spec'
     elsif file_exists? '.rspec'
       'rspec'
-    elsif helper.exist?
+    elsif file_exists? helper
       File.open(helper) do |file|
         while file.gets
           return $&.downcase if $_ =~ /\bR?Spec\b/
