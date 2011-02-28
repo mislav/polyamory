@@ -167,7 +167,7 @@ class Polyamory
   
   def prepare_cmdline(args)
     args = args.map { |p| p.to_s }
-    args = %w[bundle exec] + args if args.first != 'polyamory' and bundler?
+    args = %w[bundle exec] + args if bundler?
     args
   end
   
@@ -175,25 +175,38 @@ class Polyamory
     args = prepare_cmdline(args)
     puts args.join(' ')
 
-    # TODO: hack; make this configurable, use bundler
-    with_rubyopt(args.first == 'polyamory' ? '-rubygems' : nil) do
-      if many
-        system(*args)
-        exit $?.exitstatus unless $?.success?
-      else
-        exec(*args)
+    unless noop?
+      # TODO: hack; make this configurable, use bundler
+      with_rubyopt(!bundler? ? '-rubygems' : nil) do
+        with_rubylib('lib', args.include?('polyamory') ? 'test' : nil) do
+          if many
+            system(*args)
+            exit $?.exitstatus unless $?.success?
+          else
+            exec(*args)
+          end
+        end
       end
-    end unless noop?
+    end
   end
   
   def with_rubyopt(value)
-    old_value = ENV['RUBYOPT']
-    ENV['RUBYOPT'] = "#{value} #{old_value}"
+    with_env('RUBYOPT', "#{value} %s") { yield }
+  end
+  
+  def with_rubylib(*values)
+    value = values.flatten.compact.join(':')
+    with_env('RUBYLIB', "#{value}:%s") { yield }
+  end
+  
+  def with_env(key, value)
+    old_value = ENV[key]
+    ENV[key] = value % old_value
     
     begin
       yield
     ensure
-      ENV['RUBYOPT'] = old_value
+      ENV[key] = old_value
     end
   end
   
