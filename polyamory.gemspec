@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |gem|
   gem.name    = 'polyamory'
-  gem.version = '0.0.3'
+  gem.version = '0.0.4'
   gem.date    = Time.now.strftime('%Y-%m-%d')
 
   # gem.add_dependency 'hpricot', '~> 0.8.2'
