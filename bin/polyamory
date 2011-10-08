@@ -3,7 +3,7 @@ if ARGV.delete '-t'
   test_files = ARGV.map { |arg|
     unless arg.index('-') == 0
       if File.directory? arg
-        Dir["#{arg}/**/*_test.rb"]
+        Dir["#{arg}/**/*_test.rb", "#{arg}/**/test_*.rb"]
       else
         arg
       end

@@ -28,7 +28,7 @@ class Polyamory
   end
   
   def test_glob(dir = test_dir)
-    "#{dir}/**/*_test.rb"
+    ["#{dir}/**/*_test.rb", "#{dir}/**/test_*.rb"]
   end
   
   def spec_dir
@@ -83,7 +83,7 @@ class Polyamory
   end
   
   def find_files
-    all_paths = Pathname.glob([test_glob, spec_glob, features_glob], @root)
+    all_paths = Pathname.glob([test_glob, spec_glob, features_glob].flatten, @root)
     
     if @names.any?
       @names.map { |name|
