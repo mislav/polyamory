@@ -13,7 +13,7 @@ Frameworks supported:
 
 * Cucumber in `"features/**/*.feature"`
 * RSpec + Shoulda in `"spec/**/*_spec.rb"`
-* test/unit, Shoulda, or anything else in `"test/**/*_test.rb"`
+* test/unit, Shoulda, or anything else in `"test/**/*_test.rb"` or `"test/**/test*.rb"`
 
 ## Examples
 
@@ -32,4 +32,4 @@ Here, `polyamory` is aliased as `pam` for brevity.
     # run test files matching keyword
     $ pam user
     > polyamory -t spec/models/user_spec.rb spec/controllers/user_controller.rb &&
-      cucumber -f progress -t ~@wip features/user_registration.feature 
+      cucumber -f progress -t ~@wip features/user_registration.feature

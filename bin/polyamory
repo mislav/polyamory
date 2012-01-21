@@ -1,20 +1,25 @@
 #!/usr/bin/env ruby
+require 'polyamory'
+
 if ARGV.delete '-t'
+  root = Pathname.pwd
+
   test_files = ARGV.map { |arg|
     unless arg.index('-') == 0
       if File.directory? arg
-        Dir["#{arg}/**/*_test.rb", "#{arg}/**/test_*.rb"]
+        locator = Polyamory.new(ARGV, root)
+        locator.find_test_files(root + arg)
       else
         arg
       end
     end
   }.compact.flatten
-  
+
   if test_files.empty?
     warn "polyamory: nothing to load"
     exit 1
   else
-    test_files.each { |f| load f }
+    test_files.each { |f| require root + f }
   end
 else
   require 'polyamory'

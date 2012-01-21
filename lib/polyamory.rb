@@ -28,7 +28,11 @@ class Polyamory
   end
   
   def test_glob(dir = test_dir)
-    ["#{dir}/**/*_test.rb", "#{dir}/**/test_*.rb"]
+    "#{dir}/**/*_test.rb"
+  end
+  
+  def test_glob_alt(dir = test_dir)
+    "#{dir}/**/test*.rb"
   end
   
   def spec_dir
@@ -68,6 +72,7 @@ class Polyamory
     end
     
     def relative
+      return self if relative?
       @relativized ||= relative_path_from root
     end
     
@@ -81,14 +86,21 @@ class Polyamory
       result
     end
   end
-  
+
+  def find_test_files(dir = test_dir)
+    test_paths = Pathname.glob(test_glob(dir), @root)
+    test_paths_alt = Pathname.glob(test_glob_alt(dir), @root)
+    test_paths.size > test_paths_alt.size ? test_paths : test_paths_alt
+  end
+
   def find_files
-    all_paths = Pathname.glob([test_glob, spec_glob, features_glob].flatten, @root)
-    
+    all_paths = Pathname.glob([spec_glob, features_glob].flatten, @root)
+    all_paths.concat find_test_files
+
     if @names.any?
       @names.map { |name|
         path = @root + name
-        pattern = /\b#{Regexp.escape name}(\b|_)/
+        pattern = /(\b|_)#{Regexp.escape name}(\b|_)/
         
         if path.directory? or not path.extname.empty?
           path
