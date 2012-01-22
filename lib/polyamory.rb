@@ -127,8 +127,7 @@ class Polyamory
     jobs = index_by_path_prefix(paths).map do |prefix, files|
       [runner_for_prefix(prefix), *files].flatten
     end
-    
-    prepare_env
+
     execute_jobs jobs
   end
   
@@ -220,10 +219,5 @@ class Polyamory
     ensure
       ENV[key] = old_value
     end
-  end
-  
-  def prepare_env
-    # TODO: make this per-job
-    ENV['RUBYOPT'] = ENV['RUBYOPT'].gsub(/(^| )-w( |$)/, '\1\2') if ENV['RUBYOPT']
   end
 end

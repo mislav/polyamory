@@ -22,7 +22,5 @@ if ARGV.delete '-t'
   end
 else
   require 'polyamory'
-  options = {}
-  options[:noop] = !!ARGV.delete('-n')
-  Polyamory.run ARGV, Dir.pwd, options
+  Polyamory.run ARGV, Dir.pwd
 end
