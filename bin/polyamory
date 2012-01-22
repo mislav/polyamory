@@ -16,8 +16,7 @@ if ARGV.delete '-t'
   }.compact.flatten
 
   if test_files.empty?
-    warn "polyamory: nothing to load"
-    exit 1
+    abort "polyamory: nothing to load"
   else
     test_files.each { |f| require root + f }
   end
