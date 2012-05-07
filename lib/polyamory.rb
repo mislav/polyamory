@@ -1,10 +1,30 @@
 require 'pathname'
+require 'optparse'
 
 class Polyamory
-  def self.run(*args)
-    new(*args).run
+  def self.run(args, dir)
+    options = parse_options! args
+    new(args, dir, options).run
   end
-  
+
+  def self.parse_options!(args)
+    options = {}
+    OptionParser.new do |opts|
+      opts.on '-s', '--seed SEED', Integer, "Sets random seed" do |m|
+        options[:seed] = m.to_i
+      end
+
+      opts.on '-n', '--name PATTERN', "Filter test names on pattern." do |str|
+        options[:filter] = str
+      end
+
+      opts.parse! args
+    end
+    options
+  end
+
+  attr_reader :options
+
   def initialize(names, root, options = {})
     @names = names
     @root = Pathname.new(root).expand_path
@@ -12,7 +32,7 @@ class Polyamory
   end
   
   def noop?
-    @options[:noop]
+    options[:noop]
   end
   
   def file_exists?(path)
@@ -125,7 +145,7 @@ class Polyamory
     end
     
     jobs = index_by_path_prefix(paths).map do |prefix, files|
-      [runner_for_prefix(prefix), *files].flatten
+      [runner_for_prefix(prefix), files, extra_args_for_prefix(prefix)].flatten.compact
     end
 
     execute_jobs jobs
@@ -138,6 +158,13 @@ class Polyamory
     when 'test' then %w[polyamory -t]
     else
       raise ArgumentError, "don't know a runner for #{prefix}"
+    end
+  end
+
+  def extra_args_for_prefix(prefix)
+    case prefix
+    when 'test'
+      ['--', '-n', "/#{options[:filter]}/"] if options[:filter]
     end
   end
   

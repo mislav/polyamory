@@ -4,14 +4,20 @@ require 'polyamory'
 if ARGV.delete '-t'
   root = Pathname.pwd
 
-  test_files = ARGV.map { |arg|
-    unless arg.index('-') == 0
-      if File.directory? arg
-        locator = Polyamory.new(ARGV, root)
-        locator.find_test_files(root + arg)
-      else
-        arg
-      end
+  if idx = ARGV.index('--')
+    names = ARGV[0...idx]
+    ARGV.slice! 0..idx
+  else
+    names = ARGV.dup
+    ARGV.clear
+  end
+
+  test_files = names.map { |arg|
+    if File.directory? arg
+      locator = Polyamory.new(names, root)
+      locator.find_test_files(root + arg)
+    else
+      arg
     end
   }.compact.flatten
 
@@ -21,6 +27,5 @@ if ARGV.delete '-t'
     test_files.each { |f| require root + f }
   end
 else
-  require 'polyamory'
   Polyamory.run ARGV, Dir.pwd
 end
