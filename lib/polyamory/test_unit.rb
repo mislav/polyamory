@@ -54,7 +54,7 @@ module Polyamory
             # "word" => "test/**" that match "word"
             pattern = /(?:\b|_)#{Regexp.escape name}(?:\b|_)/
             all_files ||= find_files
-            paths.concat all_files.grep(pattern)
+            paths.concat all_files.select {|p| p =~ pattern }
           end
 
           paths
@@ -131,7 +131,7 @@ module Polyamory
         case line
         when /^\s*def\s+(test_\w+)/
           return $1
-        when /^\s*(test|it|specify)\s+(['"])((.*?)[^\\])\2/
+        when /^\s*(test|it|specify)[\s(]+(['"])((.*?)[^\\])\2/
           return ('test' == $1) ?
             $3.gsub(/\s+/, '_') : # ActiveSupport::TestCase
             $3.gsub(/\W+/u, '_')  # minitest/spec
