@@ -3,8 +3,11 @@ require 'forwardable'
 module Polyamory
   # Internal: Represents a single command to run.
   class Command
+    attr_reader :env
+
     def initialize cmd
       @args = Array(cmd)
+      @env  = Hash.new
       yield self if block_given?
     end
 

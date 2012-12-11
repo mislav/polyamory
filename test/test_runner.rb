@@ -50,6 +50,18 @@ describe Polyamory::Runner do
       ]
     end
 
+    it "sets ruby options" do
+      job.env['RUBYOPT'].must_equal "-Ilib:test %"
+    end
+
+    describe "with verbose" do
+      let(:options) { {:warnings => true} }
+
+      it "sets warning option" do
+        job.env['RUBYOPT'].must_equal "-w -Ilib:test %"
+      end
+    end
+
     describe "with pattern" do
       let(:names) { %w[user] }
 

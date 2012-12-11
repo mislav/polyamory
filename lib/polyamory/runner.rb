@@ -33,10 +33,36 @@ module Polyamory
       jobs = collect_jobs
 
       unless jobs.empty?
-        puts jobs
-        exec(*jobs.first.to_exec)
+        for job in jobs
+          exec_job job
+        end
       else
         abort "nothing to run."
+      end
+    end
+
+    def exec_job job
+      update_env job.env do |env_keys|
+        env_keys.each do |name|
+          value = ENV[name].strip
+          value = %("#{value}") if value.index(' ')
+          print "#{name}=#{value} "
+        end
+        puts job
+        exec(*job.to_exec)
+      end
+    end
+
+    def update_env env
+      saved = {}
+      env.each { |name, value|
+        saved[name] = ENV[name]
+        ENV[name] = value.sub('%', saved[name].to_s)
+      }
+      begin
+        yield saved.keys
+      rescue
+        saved.each {|name, value| ENV[name] = value }
       end
     end
 

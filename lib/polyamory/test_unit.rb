@@ -88,6 +88,7 @@ module Polyamory
 
     def test_command paths
       Command.new %w'polyamory -t' do |test_job|
+        add_ruby_options test_job
         test_job.concat paths.map {|p| p.relative }
 
         tunit_opts = testunit_options
@@ -102,11 +103,12 @@ module Polyamory
       RootedPathname.glob pattern, context.root
     end
 
-    def ruby_options
+    def add_ruby_options cmd
       opts = []
       opts << '-w' if context.warnings?
       opts << '-Ilib:test'
-      opts
+      opts << '%'
+      cmd.env['RUBYOPT'] = opts.join(' ')
     end
 
     def testunit_options
