@@ -31,41 +31,64 @@ module Polyamory
       paths.size > paths_alt.size ? paths : paths_alt
     end
 
+    # Internal: Memoized find_files in primary dir
+    def all_matching_files
+      @all_matching_files ||= find_files
+    end
+
     # Public: Resolve a set of files, directories, and patterns to a list of
     # paths to test.
     def resolve_paths names
       if names.any?
-        all_files = nil
-        names.inject([]) do |paths, name|
-          filename = name.sub(/:(\d+)$/, '')
-          line_number = $1
-
-          if (dir = test_dir + name).directory?
-            # "functional" => "test/functional/**"
-            paths.concat find_files(dir)
-          elsif (file = context.root + filename).file? and handle? file
-            # "test/unit/test_user.rb:42"
-            add_test_filter_for_line(file, line_number) if line_number
-            paths << file
-          elsif (dir = context.root + name).directory? and handle? dir
-            # "test/functional" => "test/functional/**"
-            paths.concat find_files(dir)
-          else
-            # "word" => "test/**" that match "word"
-            pattern = /(?:\b|_)#{Regexp.escape name}(?:\b|_)/
-            all_files ||= find_files
-            paths.concat all_files.select {|p| p =~ pattern }
-          end
-
-          paths
+        paths = []
+        for name in names
+          paths.concat Array(resolve_name name)
         end
+        paths
       else
-        find_files
+        all_matching_files
       end
     end
 
     def handle? path
       path.in_dir? test_dir
+    end
+
+    def resolve_name name
+      filename = name.sub(/:(\d+)$/, '')
+      line_number = $1
+
+      resolve_as_directory(name) or
+        resolve_as_filename(name) or
+        resolve_as_file_pattern(name) or
+        raise "nothing resolved from #{name}"
+    end
+
+    # "functional" => "test/functional/**"
+    # "test/functional" => "test/functional/**"
+    def resolve_as_directory name
+      dir = [test_dir + name, context.root + name].detect { |dir|
+        dir.directory? and handle? dir
+      }
+      find_files(dir) if dir
+    end
+
+    # "test/unit/test_user.rb:42"
+    def resolve_as_filename name
+      filename = name.sub(/:(\d+)$/, '')
+      line_number = $1
+      file = context.root + filename
+
+      if file.file? and handle? file
+        add_test_filter_for_line(file, line_number) if line_number
+        file
+      end
+    end
+
+    # "word" => "test/**" that match "word"
+    def resolve_as_file_pattern name
+      pattern = /(?:\b|_)#{Regexp.escape name}(?:\b|_)/
+      all_matching_files.select {|p| p =~ pattern }
     end
 
     # Public: From a list of paths, yank the ones that this knows how to handle,
@@ -113,17 +136,18 @@ module Polyamory
 
     def testunit_options
       opts = []
-      if test_filters.any?
-        opts << '-n'
-        if test_filters.size == 1
-          opts << '/%s/' % test_filters.first
-        else
-          opts << '/(%s)/' % test_filters.join('|')
-        end
-      end
+      opts << '-n' << test_filter_regexp(test_filters) if test_filters.any?
       opts << '-s' << context.test_seed if context.test_seed
       opts << '-v' if context.verbose?
       opts
+    end
+
+    def test_filter_regexp filters
+      if filters.size == 1
+        '/%s/' % filters.first
+      else
+        '/(%s)/' % filters.join('|')
+      end
     end
 
     def add_test_filter_for_line file, linenum
@@ -131,19 +155,39 @@ module Polyamory
     end
 
     def find_test_filter_for_line file, linenum
-      lines = file.readlines[0, linenum.to_i].reverse
-      lines.each do |line|
-        case line
-        when /^\s*def\s+(test_\w+)/
-          return $1
-        when /^\s*(test|it|specify)[\s(]+(['"])((.*?)[^\\])\2/
-          return ('test' == $1) ?
-            $3.gsub(/\s+/, '_') : # ActiveSupport::TestCase
-            $3  # minitest/spec
-        end
+      focused_test_finder.call(file, linenum) or
+        raise "test method not found (#{file.relative}:#{linenum})"
+    end
+
+    def focused_test_finder() FocusedTestFinder end
+
+    FocusedTestFinder = Struct.new(:file, :line) do
+      def self.call *args
+        new(*args).scan
       end
 
-      raise "test method not found (#{file.relative}:#{linenum})"
+      def readlines
+        file.readlines[0, line.to_i]
+      end
+
+      def scan
+        readlines.reverse.each do |line|
+          found = test_from_line line
+          return found if found
+        end
+        nil
+      end
+
+      def test_from_line line
+        case line
+        when /^\s*def\s+(test_\w+)/
+          $1
+        when /^\s*(test|it|specify)[\s(]+(['"])((.*?)[^\\])\2/
+          if 'test' == $1 then $3.gsub(/\s+/, '_')  # ActiveSupport::TestCase
+          else $3  # minitest/spec
+          end
+        end
+      end
     end
   end
 end
