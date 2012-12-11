@@ -87,11 +87,14 @@ module Polyamory
     end
 
     def test_command paths
-      Command.new 'ruby' do |test_job|
-        test_job.concat ruby_options
-        test_job << '-S' << 'testrb'
-        test_job.concat testunit_options
+      Command.new %w'polyamory -t' do |test_job|
         test_job.concat paths.map {|p| p.relative }
+
+        tunit_opts = testunit_options
+        if tunit_opts.any?
+          test_job << '--'
+          test_job.concat tunit_opts
+        end
       end
     end
 
@@ -134,7 +137,7 @@ module Polyamory
         when /^\s*(test|it|specify)[\s(]+(['"])((.*?)[^\\])\2/
           return ('test' == $1) ?
             $3.gsub(/\s+/, '_') : # ActiveSupport::TestCase
-            $3.gsub(/\W+/u, '_')  # minitest/spec
+            $3  # minitest/spec
         end
       end
 

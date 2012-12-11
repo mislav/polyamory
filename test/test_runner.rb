@@ -1,4 +1,5 @@
-require 'minitest/spec'
+require 'minitest/autorun'
+require 'minitest/pride'
 require 'polyamory/runner'
 require 'fileutils'
 
@@ -31,14 +32,17 @@ describe Polyamory::Runner do
     }
 
     let(:job) { subject.collect_jobs.first }
-    let(:job_files) { job.to_s.split('testrb ', 2).last.split(/\s+/).sort }
+    let(:job_files) {
+      files = job.to_exec
+      end_at = files.index('--').to_i - 1
+      files[2..end_at]
+    }
 
     it "finds one job" do
       subject.collect_jobs.size.must_equal 1
     end
 
     it "tests all files" do
-      job.to_s.must_include "ruby -Ilib:test -S testrb"
       job_files.must_equal %w[
         test/functional/lib_user_test.rb
         test/unit/blog_test.rb
@@ -81,7 +85,7 @@ describe Polyamory::Runner do
         let(:options) { {:test_filter => 'filly'} }
 
         it "generates test/unit argument" do
-          job.to_s.must_include "testrb -n /filly/"
+          job.to_s.must_include "-- -n /filly/"
         end
       end
 
@@ -114,12 +118,12 @@ describe Polyamory::Runner do
 
         describe "normal syntax" do
           let(:names) { %w[ test/unit/blog_test.rb:7 ] }
-          it("finds method") { job.to_s.must_include "-n /needs_posts/" }
+          it("finds method") { job.to_s.must_include "-n /needs posts/" }
         end
 
         describe "normal syntax" do
           let(:names) { %w[ test/unit/blog_test.rb:9 ] }
-          it("finds method") { job.to_s.must_include "-n /no_comments/" }
+          it("finds method") { job.to_s.must_include "-n /no comments/" }
         end
       end
     end
