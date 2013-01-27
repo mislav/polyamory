@@ -1,6 +1,6 @@
-require 'pathname'
-require 'polyamory/test_unit'
 require 'polyamory/rooted_pathname'
+require 'polyamory/test_unit'
+require 'polyamory/rspec'
 
 module Polyamory
   # Public: Collects test jobs in the root directory and runs them.
@@ -54,9 +54,11 @@ module Polyamory
     end
 
     def collect_jobs
-      unit = TestUnit.new self
-      paths = unit.resolve_paths @names
-      unit.pick_jobs paths
+      [TestUnit, RSpec].inject([]) do |jobs, klass|
+        framework = klass.new self
+        paths = framework.resolve_paths @names
+        jobs.concat framework.pick_jobs(paths)
+      end
     end
 
     def exec_job job

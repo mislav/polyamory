@@ -152,4 +152,64 @@ describe Polyamory::Runner do
     end
   end
 
+  describe "RSpec project" do
+    before {
+      %w[ app/models/user.rb
+          lib/sync.rb
+          spec/models/user_spec.rb
+          spec/models/blog_spec.rb
+          spec/integration/sync_spec.rb
+      ].each do |path|
+        file = File.join(root, path)
+        FileUtils.mkdir_p File.dirname(file)
+        FileUtils.touch file
+      end
+    }
+
+    let(:job) { subject.collect_jobs.first }
+    let(:job_files) {
+      files = job.to_exec
+      files[1..-1]
+    }
+
+    it "finds one job" do
+      subject.collect_jobs.size.must_equal 1
+    end
+
+    it "tests all files" do
+      job_files.must_equal %w[spec]
+    end
+
+    describe "name args" do
+      let(:names) { %w[user blog] }
+
+      it "tests some files" do
+        job_files.must_equal %w[
+          spec/models/user_spec.rb
+          spec/models/blog_spec.rb
+        ]
+      end
+    end
+
+    it "sets no ruby options" do
+      job.env['RUBYOPT'].must_equal "%"
+    end
+
+    describe "example filters" do
+      let(:options) { {:name_filters => %w'willy filly'} }
+
+      it "generates arguments" do
+        job.to_s.must_include " -e willy -e filly "
+      end
+    end
+
+    describe "tag filters" do
+      let(:options) { {:tag_filters => %w'willy filly'} }
+
+      it "generates arguments" do
+        job.to_s.must_include " -t willy -t filly "
+      end
+    end
+  end
+
 end
