@@ -8,7 +8,7 @@ module Polyamory
 
     def initialize context
       @context = context
-      @test_filters = Array(context.test_filter)
+      @test_filters = context.name_filters.dup
     end
 
     def test_dir
@@ -39,7 +39,10 @@ module Polyamory
     # Public: Resolve a set of files, directories, and patterns to a list of
     # paths to test.
     def resolve_paths names
-      if names.any?
+      if context.tag_filters.any?
+        # test/unit and minitest don't support tags
+        []
+      elsif names.any?
         paths = []
         for name in names
           paths.concat Array(resolve_name name)
@@ -55,9 +58,6 @@ module Polyamory
     end
 
     def resolve_name name
-      filename = name.sub(/:(\d+)$/, '')
-      line_number = $1
-
       resolve_as_directory(name) or
         resolve_as_filename(name) or
         resolve_as_file_pattern(name) or
@@ -130,6 +130,9 @@ module Polyamory
       opts = []
       opts << '-w' if context.warnings?
       opts << '-Ilib:test'
+      for path in context.load_paths
+        opts << "-I#{path}"
+      end
       opts << '%'
       cmd.env['RUBYOPT'] = opts.join(' ')
     end

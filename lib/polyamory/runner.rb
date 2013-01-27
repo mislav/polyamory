@@ -14,19 +14,31 @@ module Polyamory
     end
 
     def warnings?
-      options.fetch(:warnings, false)
+      options.fetch(:warnings)
     end
 
     def verbose?
-      options.fetch(:verbose, false)
+      options.fetch(:verbose)
     end
 
-    def test_filter
-      options[:test_filter]
+    def full_backtrace?
+      options.fetch(:backtrace)
+    end
+
+    def name_filters
+      options.fetch(:name_filters)
+    end
+
+    def tag_filters
+      options.fetch(:tag_filters)
+    end
+
+    def load_paths
+      options.fetch(:load_paths)
     end
 
     def test_seed
-      options[:test_seed]
+      options.fetch(:test_seed)
     end
 
     def run

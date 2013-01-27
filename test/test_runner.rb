@@ -5,7 +5,18 @@ require 'fileutils'
 
 describe Polyamory::Runner do
 
-  subject { Polyamory::Runner.new(names, root, options) }
+  let(:default_options) {
+    options = {
+      :warnings     => false,
+      :verbose      => false,
+      :backtrace    => false,
+      :test_seed    => nil,
+      :name_filters => [],
+      :tag_filters  => [],
+      :load_paths   => [],
+    }
+  }
+  subject { Polyamory::Runner.new(names, root, default_options.merge(options)) }
 
   let(:options) { Hash.new }
   let(:names)   { [] }
@@ -94,7 +105,7 @@ describe Polyamory::Runner do
 
     describe "test filters" do
       describe "from option" do
-        let(:options) { {:test_filter => 'filly'} }
+        let(:options) { {:name_filters => %w'filly'} }
 
         it "generates test/unit argument" do
           job.to_s.must_include "-- -n /filly/"
