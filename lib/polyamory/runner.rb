@@ -65,7 +65,8 @@ module Polyamory
     def exec_job job
       with_env job.env do |env_keys|
         display_job job, env_keys
-        exec(*job.to_exec)
+        system(*job.to_exec)
+        exit $?.exitstatus unless $?.success?
       end
     end
 
