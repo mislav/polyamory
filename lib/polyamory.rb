@@ -21,16 +21,29 @@ module Polyamory
     }
 
     OptionParser.new do |opts|
-      opts.banner  = 'polyamory options:'
+      opts.banner  = 'Usage: polyamory [<dirname>] [<file>[:<line>]] [-n <pattern>] [-t <tag>]'
       opts.version = VERSION
 
-      opts.on '-h', '--help', 'Display this help' do
-        puts opts
-        exit
+      opts.summary_indent = " " * 4
+
+      opts.separator "\n  Ruby options:"
+
+      opts.on '-w', "Turn on Ruby warnings" do
+        options[:warnings] = true
       end
+
+      opts.on '-I PATH', "Directory to load on $LOAD_PATH" do |str|
+        options[:load_paths] << str
+      end
+
+      opts.separator "\n  Test options:"
 
       opts.on '-s', '--seed SEED', Integer, "Set random seed" do |m|
         options[:test_seed] = m.to_i
+      end
+
+      opts.on '-b', '--backtrace', "Show full backtrace" do |str|
+        options[:backtrace] = true
       end
 
       opts.on '-n', '--name PATTERN', "Filter test names on pattern" do |str|
@@ -41,23 +54,22 @@ module Polyamory
         options[:tag_filters] << str
       end
 
-      opts.on '-b', '--backtrace', "Show full backtrace" do |str|
-        options[:backtrace] = true
-      end
-
-      opts.on '-I PATH', "Directory to load on $LOAD_PATH" do |str|
-        options[:load_paths] << str
-      end
-
-      opts.on '-w', "Turn on Ruby warnings" do
-        options[:warnings] = true
-      end
-
       opts.on '-v', '--verbose', "Show progress processing files" do
         options[:verbose] = true
       end
 
-      opts.parse! args
+      opts.separator "\n  Other options:"
+
+      opts.on_tail '-h', '--help', 'Display this help' do
+        puts opts
+        exit
+      end
+
+      begin
+        opts.parse! args
+      rescue OptionParser::InvalidOption
+        abort opts.banner
+      end
     end
 
     options
