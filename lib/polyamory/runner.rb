@@ -78,6 +78,7 @@ module Polyamory
     def display_env env_keys
       env_keys.each do |name|
         value = ENV[name].strip
+        next if value.empty?
         value = %("#{value}") if value.index(' ')
         print "#{name}=#{value} "
       end
