@@ -235,6 +235,16 @@ describe Polyamory::Runner do
         'cucumber features',
       ]
     end
+
+    describe "with tags" do
+      let(:options) { {:tag_filters => %w[willy ~nilly]} }
+      it "is filtered by tags" do
+        jobs.map {|j| j.to_s }.must_equal [
+          'rspec -t willy -t ~nilly spec',
+          'cucumber -t @willy -t ~@nilly features',
+        ]
+      end
+    end
   end
 
 end

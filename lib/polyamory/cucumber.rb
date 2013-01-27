@@ -37,10 +37,14 @@ module Polyamory
         opts << '-n' << filter
       end
       for tag in context.tag_filters
-        tag = "@#{tag}" if tag =~ /^\w+$/
-        opts << '-t' << tag
+        opts << '-t' << normalize_tag(tag)
       end
       opts
+    end
+
+    def normalize_tag tag
+      tag = "#$1@#$2" if tag =~ /^(~)?(\w+)$/
+      tag
     end
   end
 end
