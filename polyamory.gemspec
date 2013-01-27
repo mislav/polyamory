@@ -1,8 +1,17 @@
 # encoding: utf-8
+version = nil
+File.open(File.expand_path('../lib/polyamory.rb', __FILE__)) do |file|
+  file.each_line do |line|
+    if line =~ /\bVERSION = ['"](.+?)['"]/
+      version = $1
+      break
+    end
+  end
+end
 
 Gem::Specification.new do |gem|
   gem.name    = 'polyamory'
-  gem.version = '0.0.5'
+  gem.version = version
 
   gem.executables = %w( polyamory )
 

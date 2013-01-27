@@ -2,6 +2,8 @@ require 'optparse'
 require 'polyamory/runner'
 
 module Polyamory
+  VERSION = '0.6.0'
+
   def self.run(args, dir)
     options = parse_options! args
     Runner.new(args, dir, options).run
@@ -20,7 +22,7 @@ module Polyamory
 
     OptionParser.new do |opts|
       opts.banner  = 'polyamory options:'
-      opts.version = '0.0'
+      opts.version = VERSION
 
       opts.on '-h', '--help', 'Display this help' do
         puts opts
