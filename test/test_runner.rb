@@ -212,4 +212,29 @@ describe Polyamory::Runner do
     end
   end
 
+  describe "mixed project" do
+    before {
+      %w[ app/models/user.rb
+          lib/sync.rb
+          test/unit/test_user.rb
+          spec/models/blog_spec.rb
+          features/sync.feature
+      ].each do |path|
+        file = File.join(root, path)
+        FileUtils.mkdir_p File.dirname(file)
+        FileUtils.touch file
+      end
+    }
+
+    let(:jobs) { subject.collect_jobs }
+
+    it "finds three jobs" do
+      jobs.map {|j| j.to_s }.must_equal [
+        'polyamory -t test/unit/test_user.rb',
+        'rspec spec',
+        'cucumber features',
+      ]
+    end
+  end
+
 end
