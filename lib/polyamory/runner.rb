@@ -84,7 +84,18 @@ module Polyamory
       end
     end
 
+    def rbenv_clear
+      rbenv_root = `rbenv root 2>/dev/null`.chomp
+      unless rbenv_root.empty?
+        re = /^#{Regexp.escape rbenv_root}\/(versions|plugins|libexec)\b/
+        paths = ENV["PATH"].split(":")
+        paths.reject! {|p| p =~ re }
+        update_env 'PATH' => paths.join(":")
+      end
+    end
+
     def with_env env
+      rbenv_clear
       saved = update_env env
       begin
         yield saved.keys
