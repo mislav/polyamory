@@ -42,11 +42,27 @@ module Polyamory
       options.fetch(:test_seed)
     end
 
+    def bundle_exec?
+      return @bundle_exec if defined? @bundle_exec
+      if (setting = options.fetch(:bundler)).nil?
+        setting = !ENV['BUNDLE_GEMFILE'].to_s.empty? ||
+                  (root + 'Gemfile').exist?
+      end
+      @bundle_exec = setting
+    end
+
+    BundlerJob = Struct.new(:job) do
+      def env() job.env end
+      def to_exec() ['bundle', 'exec', *job.to_exec] end
+      def to_s() "bundle exec #{job.to_s}" end
+    end
+
     def run
       jobs = collect_jobs
 
       unless jobs.empty?
         for job in jobs
+          job = BundlerJob.new(job) if bundle_exec?
           exec_job job
         end
       else

@@ -15,6 +15,7 @@ module Polyamory
       :verbose      => false,
       :backtrace    => false,
       :test_seed    => nil,
+      :bundler      => nil,
       :name_filters => [],
       :tag_filters  => [],
       :load_paths   => [],
@@ -56,6 +57,10 @@ module Polyamory
 
       opts.on '-v', '--verbose', "Show progress processing files" do
         options[:verbose] = true
+      end
+
+      opts.on '--[no-]bundler', "Use `bundle exec' for running tests" do |set|
+        options[:bundler] = set
       end
 
       opts.separator "\n  Other options:"
