@@ -13,7 +13,7 @@ module Polyamory
     options = {
       :warnings     => false,
       :verbose      => false,
-      :backtrace    => false,
+      :backtrace    => nil,
       :test_seed    => nil,
       :bundler      => nil,
       :name_filters => [],
@@ -43,8 +43,8 @@ module Polyamory
         options[:test_seed] = m.to_i
       end
 
-      opts.on '-b', '--backtrace', "Show full backtrace" do |str|
-        options[:backtrace] = true
+      opts.on '-b', '--[no-]backtrace', "Show full backtrace" do |set|
+        options[:backtrace] = set
       end
 
       opts.on '-n', '--name PATTERN', "Filter test names on pattern" do |str|
