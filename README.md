@@ -10,8 +10,20 @@ Frameworks supported:
 * Cucumber in `features/**/*.feature`
 * RSpec + Shoulda in `spec/**/*_spec.rb`
 * test/unit, Shoulda, or anything else in `test/**/*_test.rb` or `test/**/test*.rb`
+* Bats in `test/*.bats`
 
-Features:
+## Installation
+
+    # Mac OS X
+    brew install https://github.com/mislav/polyamory/raw/master/brew/polyamory.rb
+
+    # other
+    gem i polyamory
+
+    # alias for brevity
+    alias pam=polyamory
+
+## Features
 
 *   `polyamory` - Runs the full test suite for any project. For example, it will
     run all of the following:
