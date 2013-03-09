@@ -45,8 +45,8 @@ module Polyamory
     def bundle_exec?
       return @bundle_exec if defined? @bundle_exec
       if (setting = options.fetch(:bundler)).nil?
-        setting = !ENV['BUNDLE_GEMFILE'].to_s.empty? ||
-                  (root + 'Gemfile').exist?
+        setting = ENV['RUBYOPT'] !~ /\br?bundler\/setup\b/ &&
+          ( !ENV['BUNDLE_GEMFILE'].to_s.empty? || (root + 'Gemfile').exist? )
       end
       @bundle_exec = setting
     end
