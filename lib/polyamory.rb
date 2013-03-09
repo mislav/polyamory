@@ -2,7 +2,7 @@ require 'optparse'
 require 'polyamory/runner'
 
 module Polyamory
-  VERSION = '0.6.0'
+  VERSION = '0.6.2'
 
   def self.run(args, dir)
     options = parse_options! args
