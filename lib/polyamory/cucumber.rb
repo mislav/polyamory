@@ -27,7 +27,7 @@ module Polyamory
         opts << "-I#{path}"
       end
       opts << '%'
-      cmd.env['RUBYOPT'] = opts.join(' ')
+      cmd.env['RUBYOPT'] = opts.join(' ') if opts.size > 1
     end
 
     def cucumber_options

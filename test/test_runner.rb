@@ -192,7 +192,7 @@ describe Polyamory::Runner do
     end
 
     it "sets no ruby options" do
-      job.env['RUBYOPT'].must_equal "%"
+      job.env['RUBYOPT'].must_be_nil
     end
 
     describe "example filters" do

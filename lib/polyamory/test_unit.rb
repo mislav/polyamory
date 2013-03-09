@@ -126,15 +126,19 @@ module Polyamory
       RootedPathname.glob pattern, context.root
     end
 
+    def rails?
+      (context.root + 'config/environment.rb').exist?
+    end
+
     def add_ruby_options cmd
       opts = []
       opts << '-w' if context.warnings?
-      opts << '-Ilib:test'
+      opts << "-Ilib:#{test_dir.basename}" unless rails?
       for path in context.load_paths
         opts << "-I#{path}"
       end
       opts << '%'
-      cmd.env['RUBYOPT'] = opts.join(' ')
+      cmd.env['RUBYOPT'] = opts.join(' ') if opts.size > 1
     end
 
     def testunit_options

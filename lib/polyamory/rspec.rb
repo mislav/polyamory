@@ -115,7 +115,7 @@ module Polyamory
       opts = []
       opts << '-w' if context.warnings?
       opts << '%'
-      cmd.env['RUBYOPT'] = opts.join(' ')
+      cmd.env['RUBYOPT'] = opts.join(' ') if opts.size > 1
     end
 
     def rspec_options
